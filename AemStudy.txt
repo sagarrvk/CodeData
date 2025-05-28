@@ -1,0 +1,454 @@
+
+Clientlibs
+
+- Clientlibs are the designs used to give good look and feel to website
+-   
+
+home.html
+
+HTML - AEM Components (markup) -->jcr:primaryType = cq:component
+css, js and fonts - clientlibs --> jcr:primaryTYpe = cq:ClientLibraryFolder
+
+ClientLib properties
+
+1) categories(mandatory) --> which is used to uniquely identify the clientlib
+2) allowProxy (mandatory)--> which is used to hide the actual path of the clientlib for security purpose
+3) dependencies --> which is used to embed one clientlib to another clientlib
+4) embed--> which is used to include all clientlibs in one file(client)
+
+Child nodes of client nodes
+----------------------------
+css folder to save css files and create css.txt and enter file names in it one after other
+js folder to save files and create js.txt and add file names in it
+
+
+Clientlibs we can include at 2 levels
+
+1) component level - stores at component level
+2) template level - stores at etc folder
+
+note --> if we wanna see all css and js file
+
+localhost:4502/apps/demo/clientlib.css
+localhost:4502/apps/demo/clientlib.js
+
+HTL
+----------------------------------------
+
+Custom Attribute(13 in total)
+
+data-sly-use -> which is similar to object creation here we can create object for java code
+data-sly-test -> Based on the condition it will execute
+data-sly-list -> it is used to iterate the elements one by one inside the container
+data-sly-repeat -> it is used to iterate the element with host tag (parent tag)
+data-sly-resource -> if you want to inject one resource (ex component) in to the current resource the we use this one
+data-sly-include -> which is used to add one file to other
+data-sly-template -> it is used to pass the input values in 2 ways one hard coding and 2 way dynamically
+data-sly-call -> it is used to access or invoking the template
+data-sly-text -> Display the value
+data-sly-element -> It will replace actual content and show dummy msg
+data-sly-attribute
+data-sly-set - data-sly-set allow us to assign value to a custom variable as show below. We can take it as a assignment operator.
+data-sly-unwrap -> remove HTML element from the render
+
+
+
+
+ex 1 ->
+(checkbox is a checkbox acceptor)
+<div data-sly-test="${properties.checkbox}">
+	<div> Value is : ${properties.desc}</div>
+</div>
+----------------------------------------------------
+
+ex 2 ->
+(hobby is multifield value acceptor)
+<div data-sly-list.item="${properties.hobby}">
+<li>${item}</li>
+</div>
+
+-----------------------------------------------------
+
+ex 3 ->
+(here div tag will also get repeat with li tag)
+<div data-sly-repeat.item="${properties.hobby}">
+<li>${item}</li>
+</div>
+
+-----------------------------------------------------
+
+ex 4 -> 
+(here the digital is a component and we calling in our current component)
+<div data-sly-resource='${'digital'@ resourceType='demo/component/digital'}>
+</div>
+
+-----------------------------------------------------
+
+ex 5 ->
+<div data-sly-include="sagar.html"></div>
+
+-----------------------------------------------------
+
+ex 6 ->
+(authorinfo is the name of the template created)
+<div data-sly-template.authorinfo>
+	<h1>hello</h1>
+	<h2>hello from template</h2>
+</div>
+
+<div data-sly-call=${authorinfo}></div>
+(this will call template)
+-----------------------------------------------------
+
+ex 7 ->
+(hobby is multifield value acceptor)
+<div data-sly-text=${properties.hobby}>Dummy Message</div>
+-----------------------------------------------------
+ex 8 ->
+(hobby is multifield value acceptor)
+<div data-sly-element=${properties.hobby}>Dummy Message</div>
+output - Dummy message
+-----------------------------------------------------
+
+ex 9 ->
+<div data-sly-unwrap=${properties.hobby}>Dummy Message</div>
+-----------------------------------------------------
+
+ex 10 ->
+
+<div  title="sagar" data-sly-attribute.title=${properties.hobby}>Dummy Message</div>
+output - <div title="cricket,chess,badminton">Dummy Msg </div>
+-----------------------------------------------------
+
+ex 11 ->
+
+<sly data-sly-set.name="John"/>
+<div>${name}</div> 
+
+
+
+
+
+
+OSGI
+-------------------
+
+-OSGI is Open Ervice Gateway
+- Wiyhout OSGI maintainance is high and would take more time to develop
+
+AEM FrontEnd Modules
+--------------------
+ui apps
+ui config
+content
+ui frontend
+all
+
+AEM Backend Modules
+-------------------
+core
+
+
+-mvn clean install
+bnd-maven.plugin will generate .jar file
+
+-mvn clean install-PautoInstallSinglePackage
+it deploy project from local system to aem server
+
+-bnd-maven-plugin for jar file creation
+-sling-maven-plugin to install on server and do deployment
+and both data can be found in pom.xml
+
+Bundle Life Cycle
+-----------------
+1.Installed
+2.Resolved
+3.Start
+4.Active
+5.Stop
+6.Delete
+
+
+Jar vs Bundel
+--------------
+
+what is Jar
+- .class files
+- meta data 
+- resources
+
+Bundel
+- import package
+- export packages
+- private packages
+
+
+Flow of bundel
+------------------
+mvn _pautoInstallSinglePackage will go to apache sling from where it goes to JCR and from there demo.jar file is moved in OSGI
+- Once in OSGI it is in Installed state
+- After it downloads and gets all dependencies of class and packages it is in Resolved state
+- From were it moves to start and ten finally actice
+- And deleted if uninstalled from system/console
+
+
+
+OSGI Component and OSGI Service
+-------------------------------
+
+- Normal Java Classes
+- OSGi component and OSGI service can listen service life cycle events(activate, deactivate and modified)
+- Dynamic update/Configuration
+
+
+Normal Java class to component
+
+@component
+public class Demo
+{
+
+}
+
+
+R&  annotation
+--------------
+
+@Component
+@Activate
+@Deactivate
+@Modified
+@ObjectClassDefination
+@AttributeDefination
+@Referance
+@Designate
+
+
+@Component(immediate=true)
+public class AuthorService{
+
+//import slf4j class as it is integrated with AEM
+//LOG is constant thats why in uppercase variable declared
+private static final Logger LOG=LoggerFactory.getLogger(clazz:AuthorService.class);
+
+@Activate
+public void activate(){
+
+	LOG.info(msg:"AuthorService activate() execution started");
+}
+
+@Deactivate
+public void deA@Activate
+public void activate(){
+
+	LOG.info(msg:"AuthorService deactivate() execution started");
+}
+
+@Modified
+public void update(){
+
+	LOG.info(msg:"AuthorService update() execution started");
+}
+
+
+
+}
+
+
+Note - All msg will be displayed in error.log
+
+
+Bundel Life cycle
+-------------------
+
+- Once Bundel is Active it will identify components and services based on the xml configuration
+- Create objects for all OSGI components and services
+- Register all OSGI components into OSGI container
+- OSGI container triggers activate events and execute activate() method in OSGI component
+
+
+Single to classes - All OSGI component and OSGI service have only one object
+
+----------------------------------------------------------
+@Component(immediate=true)
+public class AuthorService{
+
+//import slf4j class as it is integrated with AEM
+//LOG is constant thats why in uppercase variable declared
+private static final Logger LOG=LoggerFactory.getLogger(clazz:AuthorService.class);
+
+@Reference
+PublishService publishService;
+
+
+@Activate
+public void activate(){
+
+	String result = publishService.printData();
+
+	LOG.info(msg:"AuthorService activate() execution started");
+
+	//recommended
+	LOG.info(msg:"result {}", result);
+	LOG.info("Result is"+result);
+}
+
+@Deactivate
+public void deA@Activate
+public void activate(){
+
+	LOG.info(msg:"AuthorService deactivate() execution started");
+}
+
+@Modified
+public void update(){
+
+	LOG.info(msg:"AuthorService update() execution started");
+}
+
+
+
+}
+
+
+-----------------------------------------------------------
+
+@Component(immediate=true, service=PublishService.class)
+public class PublicService{
+
+//import slf4j class as it is integrated with AEM
+//LOG is constant thats why in uppercase variable declared
+private static final Logger LOG=LoggerFactory.getLogger(clazz:AuthorService.class);
+
+@Activate
+public void activate(){
+
+	LOG.info(msg:"PublicService activate() execution started");
+}
+
+@Deactivate
+public void deA@Activate
+public void activate(){
+
+	LOG.info(msg:"PublicService deactivate() execution started");
+}
+
+@Modified
+public void update(){
+
+	LOG.info(msg:"AuthorService update() execution started");
+}
+
+public String printData(){
+
+return "Print data coming from Printervice";
+
+}
+
+}
+
+
+Note - we can convert OSGi component to service but vice versa not possible. In above ex the PublishService component in to service. to call PublishService method in AuthorService we use @Referance in AuthorService
+
+
+Adding dynamic data to OSGI component
+---------------------------------------
+
+@Component(service=UserDetails.class,enable=true,immeiate=true)
+@Designate(ocd=UserDetailsConfigurations.class)
+public class UserDetails{
+
+private static final Logger LOG=LoggerFactory.getLogger(name:"UserDetails.class");
+
+
+private String userName;
+private int userId;
+private String userSecret;
+private String userApi
+
+@Activate
+public void activate(UserDetailsConfigurations udc){
+	
+	update(UserDetailsConfigurations)
+LOG.info("Data from userDetail class");
+
+}
+
+@Decativate
+public void deactivate(UserDetailsConfigurations udc){
+LOG.info("Data from userDetail class Deactivate");
+}
+
+@Modified
+public void modified(UserDetailsConfigurations udc){
+LOG.info("Data from userDetail class Modified");
+}
+
+Public void update(UserDetailsConfigurations udc){
+	
+	this.userName=udc.userName();
+	this.userId=udc.userId();
+	this.userSecret=udc.userSecret();
+	this.userApi=udc.userApi();
+	
+LOG.info("UserName{}, userId {}, userSecret {}, userApi{}",username,userId,userSecret,userApi):
+
+}
+
+}
+
+
+Create new annotation in java
+------------------------------
+
+@ObjectClassDefination(name="UserDetailsConfigurations", description="User Details Description")
+public @interface UserDetailsConfigurations{
+
+@AttributeDefination(name="Username",
+describtopn="About user",
+defaultValue="raju",
+type=AttributeType.STRING,
+required=true)
+Public String username();
+
+
+@AttributeDefination(name="UserID",
+describtopn="About user",
+defaultValue="1011",
+type=AttributeType.INTEGER,
+required=true)
+Public int userId();
+
+
+@AttributeDefination(name="UserSecret",
+describtopn="About user Description",
+defaultValue="999999999",
+type=AttributeType.STRING,
+required=true)
+Public int userSecret();
+
+
+@AttributeDefination(name="UserApi",
+describtopn="About user API",
+defaultValue="www.sagar.com",
+type=AttributeType.STRING,
+required=true)
+Public int userApi();
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
