@@ -1,0 +1,224 @@
+Consoles
+
+1 - Sites Console
+htpps:localhost:4502/sites
+htpps:localhost:4502/start.html
+
+
+2 - Assets & DAM
+htpps:localhost:4502/assets
+
+3 - Package manager
+htpps:localhost:4502/crx/packmgr
+
+4 - System Console
+htpps:localhost:4502/system/Console
+
+
+Components-
+-----------
+- component is a modular unit
+- it can hold other components
+- component have the edit behaviour
+-component have html files there we include our backend logic
+
+Types of components
+1) Core components (out of the box)
+2) Proxy components (inherited component)
+3) Custom components
+
+sling:resourceType - will establish relation between node and components
+sling:resourceSuperType - will establish relation between 2 components
+
+- component must be created under apps/<projectnameFolder>/components
+- right click new component or right clcik create new node and node tyoe cq:component
+- and crete a new file by component-name.html file
+- Dialogues can be added to fetch data from user to component
+- "${properties.name}" to retrieve the value$
+- Data entered in component can we view under contennt folder in CRXde
+
+
+cq:Dialog
+
+- Coral UI - it contain Js and CSS
+- Granit UI - It will contain all the predefined component
+-cq:dialog contains content,items
+
+creating cq:dialog
+
+- Right click on component and create a node with type nt:Unstructed
+- In the properties window add the property sling:resourceType value to cq/gui/components/authoring/dailog
+- Once the dialog is creted and we want to give a name on top of popup we can add property jcr:title and value=nameWeWant
+- Right click on the cq:dialog and add new node by name content and give sling:resourceType value as granite/ui/components/coral/foundation/fixedcolums
+- Right click on content and create new node items with type nt:unstructured no need for sling:resourceType
+- Under items we can add textfield,textarea,pathbrowser,pathfield,checkbox,select,datepicker,numberfield,multifield
+- Add node under items to get values right click and create node with nt:unstructured and add sling:resourceType and add value from 
+    granite/ui/components/coral/foundation/form/textfield
+- Add propeties to item created under items like fieldLabel value=<name to be displayed> on dialog ex- Text
+- Add another property name and set value which will act as a variable to store data we enter in dialog
+
+
+MVC
+
+diplay data on Page 
+1) plain text to Page
+2) using cq:dialog save data and display on page ${properties.name} we can render$
+3) read data using sling modals
+
+MVC in AEM
+-----------
+modal - java code
+view - component
+controller - content folder data of particular page
+
+Sling Model
+-------------
+
+- Sling Model is the sling API, it is one of the restful web framework inside AEM architectue
+- Main purpose of sling API is to map request to resourceSuperType
+- Sling models cn be adapted in 2 ways
+1) Resource.class
+2)SlingHttpsServletRequest.class
+
+Difference between Resource.class and SlingHttpsServletRequest.class
+--------------------------------------------------------------------
+Resource.class - we can inject dialog data
+SlingHttpServletRequest.class - we can inject global objects (HTL global object)
+
+Annotations in Sling Model
+--------------------------
+@Model - to convert noraml class to a sling models
+
+@Model(adaptables=RESOURCE.class, defaultInjectionstrategy.OPTIONAL)
+public class demo implements demo 2{
+@ValueMapValue
+Private String name;
+
+}
+
+@Inject -  inject data from dialog we author dialog towards java objects for ex - we have textfield it stores content node to bring it back to html
+@ValueMapValue - to send values from AEM to java model class
+@Named - which declares name for injection
+@Self - which is used to inject one slig model into current sling model
+@OSGI - if we have multiple services and we want to inject the service in sling model then we use OSGI service Annotations
+@Default - will provide text by default (before authoring)
+@Required - it will specify the field mandatory to author
+
+ex - @Default(values ="Default value")
+
+ex 2 - @Named - in java ":" are not allowed to use in case we want sling:resourceType path into a variable we use it
+@Named(value = "sling:resourceType")
+Private String str;
+
+<div data-sly-use.modalDta="path"></div>
+
+Difference between @ValueMapValue and @Inject
+----------------------------------------------
+@ValueMapValue fetch data in key value pair while @Inject fetch single value
+
+
+ex- @ScriptVariable - to fetch gloabl variable (crrentPage, currentNode and etc)
+    Page currentPage;
+
+@PostConstruct - it will inject the data we can create a string variable then create a postconstruct method and can initialaize the string value and then returns the value using a getter method and can retrive the value on component.html file using object of data-sly-use.<object> tag
+
+Note - note a mandatory annotation(@postconstruct)
+
+
+
+
+
+Sling SlingHttpServletRequest
+-------------------------------
+
+Servlets are java classes which has methods like init(), service(). destroy(), which will take the parameters and process  the parameters and return the response
+
+how many ways we can register the Servlets
+------------------------------------------
+1. Path based Servlets - disadvtage(path is hardcoded, we cannot control the access to url)
+2. resource based Servlets - 
+
+we can extend 2 out of the box classes for it
+1. SlingSafeMethodServlet --> doGet --> read operation
+2. SlingAllMethodServlet --> all methods --> we can perform CURD operation
+
+HTTP Request methods
+---------------------
+GET - it will get the data from server
+PUT - It will insert the data into the server
+POST - it will create/update data into the server
+DELETE - it will delete data from server
+
+Steps to create SlingServlet
+--------------------------------
+
+1) Create normal java class with any anem
+2) We can extend out of the box classes based on the requirements
+    if it sis read operation we can go with SlingSafeMthodServlet.class
+    if it is CRUD operation we can go with SlingAllMethodServlet
+3) we can convert the normal java class into component y using @Component annotation
+
+@Component(service=Servlet.class, anabled = true, immediate=true)
+public class DigitalServlet extends SlingSafeMethodServlet{
+
+}
+4) we can register servlet either as path based or resource based
+
+@Component(service=Servlet.class, anabled = true, immediate=true)
+@SlingServletPaths(value = "/bin/sagar")
+public class DigitalServlet extends SlingSafeMethodServlet{
+
+}
+
+5) servlet is also one service
+6) you can convert component into service(service=Servlet.class)
+7) we can override the methods and can write logic in it
+
+@Component(service=Servlet.class, anabled = true, immediate=true)
+@SlingServletPaths(value = "/bin/sagar")
+public class DigitalServlet extends SlingSafeMethodServlet{
+        @Override
+        Proteted voiddoGet(SlingHttpServletRequest req,SlingHttpServletResponse res) thows IOException, ServletException{
+
+            res.getWritter.write("Hello from SLingServlet");
+
+        }
+}
+
+
+Resource based Sling Servlet
+------------------------------
+
+@Component(service=Servlet.class, anabled = true, immediate=true)
+@SlingServletResourceTypes(value = "/tony/stark")
+public class DigitalServlet extends SlingSafeMethodServlet{
+        @Override
+        Proteted voiddoGet(SlingHttpServletRequest req,SlingHttpServletResponse res) thows IOException, ServletException{
+
+            res.getWritter.write("Hello from SLingServlet");
+
+        }
+}
+
+
+-Create a node of nt:unstructured called sagar under content and add a property in node sling:resourceType and add value from program above (/tony/stark)
+-now save the node and hit url localhost:4502/Content/sagar it will call the slingServlet
+
+Difference betweeen path based SlingServlet and resource based SlingServlet 
+-----------------------------------------------------------------------------
+-In path the url goes to sling and it is redirected to OSGI(java program)
+-In resource based slingServlet the url goes to sling and it is diverted to JCR
+
+
+
+
+Client Libraries
+
+https://www.youtube.com/watch?v=G5t4g8M8i7w
+
+
+
+
+
+
+
